@@ -1,0 +1,17 @@
+{
+  "name": "cadastro-produtos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cadastro de produtos desenvolvido por etapas",
+  "main": "src/servidor.js",
+  "scripts": {
+    "start": "node src/servidor.js",
+    "dev": "node --watch src/servidor.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "5.1.0"
+  }
+}
