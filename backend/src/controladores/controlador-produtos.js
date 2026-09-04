@@ -1,18 +1,85 @@
 const repositorioProdutos = require('../repositorios/repositorio-produtos');
 
 async function listarProdutos(requisicao, resposta) {
+  const descricaoRecebida = requisicao.query.descricao ?? '';
+  const usuarioRecebido = requisicao.query.usuario ?? '';
+  const valorMinimoRecebido = requisicao.query.valor_minimo;
+  const valorMaximoRecebido = requisicao.query.valor_maximo;
   const ordenarPorRecebido =
     requisicao.query.ordenar_por ?? 'data_cadastro';
-
   const direcaoRecebida =
     requisicao.query.direcao ?? 'desc';
 
   if (
+    typeof descricaoRecebida !== 'string' ||
+    typeof usuarioRecebido !== 'string' ||
     typeof ordenarPorRecebido !== 'string' ||
-    typeof direcaoRecebida !== 'string'
+    typeof direcaoRecebida !== 'string' ||
+    (
+      valorMinimoRecebido !== undefined &&
+      typeof valorMinimoRecebido !== 'string'
+    ) ||
+    (
+      valorMaximoRecebido !== undefined &&
+      typeof valorMaximoRecebido !== 'string'
+    )
   ) {
     return resposta.status(400).json({
-      mensagem: 'Os parametros de ordenacao sao invalidos.'
+      mensagem: 'Os parametros da listagem sao invalidos.'
+    });
+  }
+
+  const descricao = descricaoRecebida.trim();
+  const usuario = usuarioRecebido.trim();
+
+  if (descricao.length > 255) {
+    return resposta.status(400).json({
+      mensagem: 'O filtro de descricao deve ter no maximo 255 caracteres.'
+    });
+  }
+
+  if (usuario.length > 120) {
+    return resposta.status(400).json({
+      mensagem: 'O filtro de usuario deve ter no maximo 120 caracteres.'
+    });
+  }
+
+  let valorMinimo = null;
+  let valorMaximo = null;
+
+  if (
+    valorMinimoRecebido !== undefined &&
+    valorMinimoRecebido.trim() !== ''
+  ) {
+    valorMinimo = Number(valorMinimoRecebido);
+
+    if (!Number.isFinite(valorMinimo) || valorMinimo < 0) {
+      return resposta.status(400).json({
+        mensagem: 'O valor minimo deve ser um numero nao negativo.'
+      });
+    }
+  }
+
+  if (
+    valorMaximoRecebido !== undefined &&
+    valorMaximoRecebido.trim() !== ''
+  ) {
+    valorMaximo = Number(valorMaximoRecebido);
+
+    if (!Number.isFinite(valorMaximo) || valorMaximo < 0) {
+      return resposta.status(400).json({
+        mensagem: 'O valor maximo deve ser um numero nao negativo.'
+      });
+    }
+  }
+
+  if (
+    valorMinimo !== null &&
+    valorMaximo !== null &&
+    valorMinimo > valorMaximo
+  ) {
+    return resposta.status(400).json({
+      mensagem: 'O valor minimo nao pode ser maior que o valor maximo.'
     });
   }
 
@@ -39,6 +106,10 @@ async function listarProdutos(requisicao, resposta) {
 
   try {
     const produtos = await repositorioProdutos.listarTodos({
+      descricao,
+      usuario,
+      valorMinimo,
+      valorMaximo,
       ordenarPor: ordenarPorRecebido,
       direcao
     });

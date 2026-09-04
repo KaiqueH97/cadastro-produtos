@@ -21,6 +21,10 @@ const consultaBaseProdutos = `
 `;
 
 async function listarTodos({
+  descricao = '',
+  usuario = '',
+  valorMinimo = null,
+  valorMaximo = null,
   ordenarPor = 'data_cadastro',
   direcao = 'desc'
 } = {}) {
@@ -30,7 +34,30 @@ async function listarTodos({
 
   const direcaoSql = direcao === 'asc' ? 'ASC' : 'DESC';
 
-  const consulta = `
+  const condicoes = [];
+  const parametros = [];
+
+  if (descricao) {
+    condicoes.push('p.descricao LIKE ?');
+    parametros.push(`%${descricao}%`);
+  }
+
+  if (usuario) {
+    condicoes.push('u.nome LIKE ?');
+    parametros.push(`%${usuario}%`);
+  }
+
+  if (valorMinimo !== null) {
+    condicoes.push('p.valor >= ?');
+    parametros.push(valorMinimo);
+  }
+
+  if (valorMaximo !== null) {
+    condicoes.push('p.valor <= ?');
+    parametros.push(valorMaximo);
+  }
+
+  let consulta = `
     SELECT
       p.id,
       p.data_cadastro,
@@ -41,10 +68,15 @@ async function listarTodos({
     FROM produtos AS p
     INNER JOIN usuarios AS u
       ON u.id = p.usuario_id
-    ORDER BY ${colunaSql} ${direcaoSql}
   `;
 
-  const [produtos] = await banco.execute(consulta);
+  if (condicoes.length > 0) {
+    consulta += ` WHERE ${condicoes.join(' AND ')}`;
+  }
+
+  consulta += ` ORDER BY ${colunaSql} ${direcaoSql}`;
+
+  const [produtos] = await banco.execute(consulta, parametros);
 
   return produtos;
 }
