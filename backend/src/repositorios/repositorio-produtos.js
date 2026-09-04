@@ -61,8 +61,37 @@ async function criarProduto({
   return buscarPorId(resultado.insertId);
 }
 
+async function atualizarPorId(id, {
+  descricao,
+  quantidade,
+  valor
+}) {
+  const consulta = `
+    UPDATE produtos
+    SET
+      descricao = ?,
+      quantidade = ?,
+      valor = ?
+    WHERE id = ?
+  `;
+
+  const [resultado] = await banco.execute(consulta, [
+    descricao,
+    quantidade,
+    valor,
+    id
+  ]);
+
+  if (resultado.affectedRows === 0) {
+    return null;
+  }
+
+  return buscarPorId(id);
+}
+
 module.exports = {
   listarTodos,
   buscarPorId,
-  criarProduto
+  criarProduto,
+  atualizarPorId
 };
