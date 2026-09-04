@@ -5,5 +5,6 @@ const roteador = express.Router();
 
 roteador.get('/', controladorProdutos.listarProdutos);
 roteador.get('/:id', controladorProdutos.buscarProdutoPorId);
+roteador.post('/', controladorProdutos.cadastrarProduto);
 
 module.exports = roteador;

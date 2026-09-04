@@ -35,7 +35,34 @@ async function buscarPorId(id) {
   return produtos[0] || null;
 }
 
+async function criarProduto({
+  usuarioId,
+  descricao,
+  quantidade,
+  valor
+}) {
+  const consulta = `
+    INSERT INTO produtos (
+      usuario_id,
+      descricao,
+      quantidade,
+      valor
+    )
+    VALUES (?, ?, ?, ?)
+  `;
+
+  const [resultado] = await banco.execute(consulta, [
+    usuarioId,
+    descricao,
+    quantidade,
+    valor
+  ]);
+
+  return buscarPorId(resultado.insertId);
+}
+
 module.exports = {
   listarTodos,
-  buscarPorId
+  buscarPorId,
+  criarProduto
 };
