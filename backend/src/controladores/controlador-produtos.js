@@ -1,14 +1,53 @@
 const repositorioProdutos = require('../repositorios/repositorio-produtos');
 
 async function listarProdutos(requisicao, resposta) {
-  try {
-    const produtos = await repositorioProdutos.listarTodos();
+  const ordenarPorRecebido =
+    requisicao.query.ordenar_por ?? 'data_cadastro';
 
-    resposta.status(200).json(produtos);
+  const direcaoRecebida =
+    requisicao.query.direcao ?? 'desc';
+
+  if (
+    typeof ordenarPorRecebido !== 'string' ||
+    typeof direcaoRecebida !== 'string'
+  ) {
+    return resposta.status(400).json({
+      mensagem: 'Os parametros de ordenacao sao invalidos.'
+    });
+  }
+
+  const colunasPermitidas = [
+    'id',
+    'data_cadastro',
+    'usuario',
+    'valor'
+  ];
+
+  if (!colunasPermitidas.includes(ordenarPorRecebido)) {
+    return resposta.status(400).json({
+      mensagem: 'A coluna de ordenacao informada nao e permitida.'
+    });
+  }
+
+  const direcao = direcaoRecebida.toLowerCase();
+
+  if (direcao !== 'asc' && direcao !== 'desc') {
+    return resposta.status(400).json({
+      mensagem: 'A direcao deve ser asc ou desc.'
+    });
+  }
+
+  try {
+    const produtos = await repositorioProdutos.listarTodos({
+      ordenarPor: ordenarPorRecebido,
+      direcao
+    });
+
+    return resposta.status(200).json(produtos);
   } catch (erro) {
     console.error('Erro ao listar produtos:', erro.message);
 
-    resposta.status(500).json({
+    return resposta.status(500).json({
       mensagem: 'Nao foi possivel listar os produtos.'
     });
   }

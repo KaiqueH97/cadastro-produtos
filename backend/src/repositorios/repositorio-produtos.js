@@ -1,5 +1,12 @@
 const banco = require('../configuracao/conexao-banco');
 
+const colunasParaOrdenacao = {
+  id: 'p.id',
+  data_cadastro: 'p.data_cadastro',
+  usuario: 'u.nome',
+  valor: 'p.valor'
+};
+
 const consultaBaseProdutos = `
   SELECT
     produtos.id,
@@ -13,10 +20,28 @@ const consultaBaseProdutos = `
     ON usuarios.id = produtos.usuario_id
 `;
 
-async function listarTodos() {
+async function listarTodos({
+  ordenarPor = 'data_cadastro',
+  direcao = 'desc'
+} = {}) {
+  const colunaSql =
+    colunasParaOrdenacao[ordenarPor] ||
+    colunasParaOrdenacao.data_cadastro;
+
+  const direcaoSql = direcao === 'asc' ? 'ASC' : 'DESC';
+
   const consulta = `
-    ${consultaBaseProdutos}
-    ORDER BY produtos.id DESC
+    SELECT
+      p.id,
+      p.data_cadastro,
+      u.nome AS usuario,
+      p.descricao,
+      p.quantidade,
+      p.valor
+    FROM produtos AS p
+    INNER JOIN usuarios AS u
+      ON u.id = p.usuario_id
+    ORDER BY ${colunaSql} ${direcaoSql}
   `;
 
   const [produtos] = await banco.execute(consulta);
