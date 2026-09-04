@@ -177,9 +177,38 @@ async function atualizarProduto(requisicao, resposta) {
   }
 }
 
+async function excluirProduto(requisicao, resposta) {
+  const id = Number(requisicao.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return resposta.status(400).json({
+      mensagem: 'O ID deve ser um numero inteiro positivo.'
+    });
+  }
+
+  try {
+    const produtoFoiExcluido = await repositorioProdutos.excluirPorId(id);
+
+    if (!produtoFoiExcluido) {
+      return resposta.status(404).json({
+        mensagem: 'Produto nao encontrado.'
+      });
+    }
+
+    return resposta.status(204).send();
+  } catch (erro) {
+    console.error('Erro ao excluir produto:', erro.message);
+
+    return resposta.status(500).json({
+      mensagem: 'Nao foi possivel excluir o produto.'
+    });
+  }
+}
+
 module.exports = {
   listarProdutos,
   buscarProdutoPorId,
   cadastrarProduto,
-  atualizarProduto
+  atualizarProduto,
+  excluirProduto
 };

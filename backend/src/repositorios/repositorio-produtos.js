@@ -89,9 +89,21 @@ async function atualizarPorId(id, {
   return buscarPorId(id);
 }
 
+async function excluirPorId(id) {
+  const consulta = `
+    DELETE FROM produtos
+    WHERE id = ?
+  `;
+
+  const [resultado] = await banco.execute(consulta, [id]);
+
+  return resultado.affectedRows > 0;
+}
+
 module.exports = {
   listarTodos,
   buscarPorId,
   criarProduto,
-  atualizarPorId
+  atualizarPorId,
+  excluirPorId
 };
