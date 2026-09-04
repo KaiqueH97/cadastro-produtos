@@ -1,6 +1,9 @@
 const express = require('express');
+const rotasProdutos = require('./rotas/rotas-produtos');
 
 const aplicacao = express();
+
+aplicacao.use(express.json());
 
 function apresentarSistema(requisicao, resposta) {
   resposta.json({
@@ -9,5 +12,6 @@ function apresentarSistema(requisicao, resposta) {
 }
 
 aplicacao.get('/', apresentarSistema);
+aplicacao.use('/api/produtos', rotasProdutos);
 
 module.exports = aplicacao;
