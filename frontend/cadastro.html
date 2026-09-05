@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>Cadastro | Cadastro de Produtos</title>
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body class="pagina-centralizada">
+  <main class="cartao cartao-login">
+    <div class="marca">CP</div>
+
+    <h1>Criar conta</h1>
+
+    <p class="texto-secundario">
+      Preencha os dados para acessar o sistema.
+    </p>
+
+    <form id="formulario-cadastro">
+      <div class="campo">
+        <label for="nome">Nome</label>
+        <input
+          type="text"
+          id="nome"
+          name="nome"
+          minlength="2"
+          maxlength="120"
+          autocomplete="name"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label for="email">E-mail</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          maxlength="160"
+          autocomplete="email"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <input
+          type="password"
+          id="senha"
+          name="senha"
+          minlength="8"
+          maxlength="72"
+          autocomplete="new-password"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label for="confirmacao-senha">Confirmar senha</label>
+        <input
+          type="password"
+          id="confirmacao-senha"
+          name="confirmacao-senha"
+          minlength="8"
+          maxlength="72"
+          autocomplete="new-password"
+          required
+        >
+      </div>
+
+      <button id="botao-cadastrar" type="submit">
+        Criar conta
+      </button>
+
+      <p
+        id="mensagem-cadastro"
+        class="mensagem"
+        role="alert"
+        aria-live="polite"
+      ></p>
+    </form>
+
+    <p class="texto-link">
+      Já possui uma conta?
+      <a href="/login.html">Voltar para o login</a>
+    </p>
+  </main>
+
+  <script src="/js/cadastro.js" defer></script>
+</body>
+</html>

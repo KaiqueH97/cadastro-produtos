@@ -9,6 +9,20 @@ function mostrarMensagem(texto, tipo) {
   mensagemLogin.className = `mensagem mensagem-${tipo}`;
 }
 
+const mensagemRecebida = sessionStorage.getItem('mensagemLogin');
+const emailCadastrado = sessionStorage.getItem('emailCadastrado');
+
+if (mensagemRecebida) {
+  mostrarMensagem(mensagemRecebida, 'sucesso');
+  sessionStorage.removeItem('mensagemLogin');
+}
+
+if (emailCadastrado) {
+  campoEmail.value = emailCadastrado;
+  campoSenha.focus();
+  sessionStorage.removeItem('emailCadastrado');
+}
+
 formularioLogin.addEventListener('submit', async (evento) => {
   evento.preventDefault();
 

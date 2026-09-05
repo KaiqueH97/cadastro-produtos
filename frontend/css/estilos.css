@@ -540,3 +540,20 @@ tbody tr:hover {
     width: 100%;
   }
 }
+
+.texto-link {
+  margin: 20px 0 0;
+  color: var(--cor-texto-secundario);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.texto-link a {
+  color: var(--cor-principal);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.texto-link a:hover {
+  text-decoration: underline;
+}
