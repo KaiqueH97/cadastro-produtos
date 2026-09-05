@@ -154,17 +154,12 @@ async function buscarProdutoPorId(requisicao, resposta) {
 
 async function cadastrarProduto(requisicao, resposta) {
   const {
-    usuario_id: usuarioId,
-    descricao,
-    quantidade,
-    valor
-  } = requisicao.body;
+  descricao,
+  quantidade,
+  valor
+} = requisicao.body;
 
-  if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
-    return resposta.status(400).json({
-      mensagem: 'O usuario_id deve ser um numero inteiro positivo.'
-    });
-  }
+const usuarioId = requisicao.usuario.id;
 
   if (
     typeof descricao !== 'string' ||
