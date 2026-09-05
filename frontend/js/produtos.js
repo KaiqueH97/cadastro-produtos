@@ -20,10 +20,19 @@ const nomeProdutoExclusao = document.querySelector('#nome-produto-exclusao');
 const mensagemExclusao = document.querySelector('#mensagem-exclusao');
 const botaoCancelarExclusao = document.querySelector('#botao-cancelar-exclusao');
 const botaoConfirmarExclusao = document.querySelector('#botao-confirmar-exclusao');
+const formularioFiltros = document.querySelector( '#formulario-filtros');
+const filtroDescricao = document.querySelector('#filtro-descricao');
+const filtroUsuario = document.querySelector('#filtro-usuario');
+const filtroValorMinimo = document.querySelector( '#filtro-valor-minimo');
+const filtroValorMaximo = document.querySelector( '#filtro-valor-maximo');
+const campoOrdenarPor = document.querySelector('#ordenar-por');
+const campoDirecaoOrdenacao = document.querySelector('#direcao-ordenacao');
+const botaoLimparFiltros = document.querySelector( '#botao-limpar-filtros');
 
 let produtoEmEdicaoId = null;
 let produtoPendenteExclusao = null;
 let botaoExclusaoPendente = null;
+let parametrosListagem = new URLSearchParams();
 
 function encerrarSessao() {
   localStorage.removeItem('token');
@@ -197,6 +206,49 @@ function exibirProdutos(produtos) {
   containerTabela.hidden = false;
 }
 
+function montarParametrosListagem() {
+  const parametros = new URLSearchParams();
+
+  const descricao = filtroDescricao.value.trim();
+  const usuario = filtroUsuario.value.trim();
+  const valorMinimo = filtroValorMinimo.value;
+  const valorMaximo = filtroValorMaximo.value;
+
+  if (descricao) {
+    parametros.set('descricao', descricao);
+  }
+
+  if (usuario) {
+    parametros.set('usuario', usuario);
+  }
+
+  if (valorMinimo) {
+    parametros.set('valor_minimo', valorMinimo);
+  }
+
+  if (valorMaximo) {
+    parametros.set('valor_maximo', valorMaximo);
+  }
+
+  parametros.set('ordenar_por', campoOrdenarPor.value);
+  parametros.set('direcao', campoDirecaoOrdenacao.value);
+
+  return parametros;
+}
+
+function aplicarFiltros(evento) {
+  evento.preventDefault();
+
+  parametrosListagem = montarParametrosListagem();
+  carregarProdutos();
+}
+
+function limparFiltros() {
+  formularioFiltros.reset();
+  parametrosListagem = new URLSearchParams();
+  carregarProdutos();
+}
+
 async function carregarProdutos() {
   mensagemListagem.hidden = false;
   mensagemListagem.className = 'mensagem-listagem';
@@ -204,10 +256,16 @@ async function carregarProdutos() {
   containerTabela.hidden = true;
 
   try {
-    const resposta = await fetch('/api/produtos', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+    const consulta = parametrosListagem.toString();
+
+    const endereco = consulta
+    ? `/api/produtos?${consulta}`
+    : '/api/produtos';
+
+    const resposta = await fetch(endereco, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
     });
 
     if (resposta.status === 401) {
@@ -231,7 +289,7 @@ async function carregarProdutos() {
   } catch (erro) {
     mensagemListagem.hidden = false;
     mensagemListagem.className = 'mensagem-listagem mensagem-erro';
-    mensagemListagem.textContent = erro.message;
+    mensagemListagem.textContent = 'Nenhum produto encontrado.';
     containerTabela.hidden = true;
   }
 }
@@ -396,6 +454,8 @@ modalExclusao.addEventListener('cancel', (evento) => {
   }
   fecharModalExclusao();
 });
+formularioFiltros.addEventListener('submit', aplicarFiltros);
+botaoLimparFiltros.addEventListener('click', limparFiltros);
 
 if (!token) {
   encerrarSessao();
