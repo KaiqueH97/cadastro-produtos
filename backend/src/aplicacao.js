@@ -1,11 +1,13 @@
 const express = require('express');
 const rotasProdutos = require('./rotas/rotas-produtos');
 const rotasUsuarios = require('./rotas/rotas-usuarios');
+const rotasAutenticacao = require('./rotas/rotas-autenticacao');
 
 const aplicacao = express();
 
 aplicacao.use(express.json());
 aplicacao.use('/api/usuarios', rotasUsuarios);
+aplicacao.use('/api', rotasAutenticacao);
 
 function apresentarSistema(requisicao, resposta) {
   resposta.json({

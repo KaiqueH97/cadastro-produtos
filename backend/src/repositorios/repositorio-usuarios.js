@@ -35,7 +35,25 @@ async function criarUsuario({ nome, email, senhaHash }) {
   return buscarPorId(resultado.insertId);
 }
 
+async function buscarPorEmail(email) {
+  const consulta = `
+    SELECT
+      id,
+      nome,
+      email,
+      senha_hash,
+      data_cadastro
+    FROM usuarios
+    WHERE email = ?
+  `;
+
+  const [usuarios] = await banco.execute(consulta, [email]);
+
+  return usuarios[0] || null;
+}
+
 module.exports = {
   buscarPorId,
-  criarUsuario
+  criarUsuario,
+  buscarPorEmail
 };
