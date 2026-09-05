@@ -128,6 +128,47 @@
       </div>
     </section>
   </main>
+  <dialog id="modal-exclusao" class="modal-exclusao">
+  <div class="conteudo-modal">
+    <div class="icone-exclusao" aria-hidden="true">!</div>
+
+    <h2>Excluir produto?</h2>
+
+    <p>
+      Você está prestes a excluir
+      <strong id="nome-produto-exclusao"></strong>.
+      Essa ação não poderá ser desfeita.
+    </p>
+
+    <p
+      id="mensagem-exclusao"
+      class="mensagem mensagem-erro"
+      role="alert"
+      aria-live="polite"
+      hidden
+    ></p>
+
+    <div class="acoes-modal">
+      <button
+        id="botao-cancelar-exclusao"
+        class="botao-cancelar"
+        type="button"
+      >
+        Cancelar
+      </button>
+
+        <button
+        id="botao-confirmar-exclusao"
+        class="botao-perigo"
+        type="button"
+        >
+        Excluir produto
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  
 
   <script src="/js/produtos.js" defer></script>
 </body>

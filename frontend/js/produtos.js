@@ -15,8 +15,15 @@ const mensagemFormulario = document.querySelector('#mensagem-formulario');
 const mensagemListagem = document.querySelector('#mensagem-listagem');
 const containerTabela = document.querySelector('#container-tabela');
 const corpoTabela = document.querySelector('#corpo-tabela-produtos');
+const modalExclusao = document.querySelector('#modal-exclusao');
+const nomeProdutoExclusao = document.querySelector('#nome-produto-exclusao');
+const mensagemExclusao = document.querySelector('#mensagem-exclusao');
+const botaoCancelarExclusao = document.querySelector('#botao-cancelar-exclusao');
+const botaoConfirmarExclusao = document.querySelector('#botao-confirmar-exclusao');
 
 let produtoEmEdicaoId = null;
+let produtoPendenteExclusao = null;
+let botaoExclusaoPendente = null;
 
 function encerrarSessao() {
   localStorage.removeItem('token');
@@ -77,9 +84,12 @@ function criarCelula(valor, nomeClasse = '') {
 
 function criarCelulaAcoes(produto) {
   const celula = document.createElement('td');
+  const grupoAcoes = document.createElement('div');
   const botaoEditar = document.createElement('button');
+  const botaoExcluir = document.createElement('button');
 
   celula.classList.add('celula-acoes');
+  grupoAcoes.classList.add('grupo-acoes');
 
   botaoEditar.type = 'button';
   botaoEditar.textContent = 'Editar';
@@ -89,7 +99,16 @@ function criarCelulaAcoes(produto) {
     abrirFormularioEdicao(produto);
   });
 
-  celula.appendChild(botaoEditar);
+  botaoExcluir.type = 'button';
+  botaoExcluir.textContent = 'Excluir';
+  botaoExcluir.classList.add('botao-tabela', 'botao-excluir');
+
+  botaoExcluir.addEventListener('click', () => {
+  abrirModalExclusao(produto, botaoExcluir);
+  });
+
+  grupoAcoes.append(botaoEditar, botaoExcluir);
+  celula.appendChild(grupoAcoes);
 
   return celula;
 }
@@ -279,10 +298,104 @@ async function salvarProduto(evento) {
   }
 }
 
+function abrirModalExclusao(produto, botaoExcluir) {
+  produtoPendenteExclusao = produto;
+  botaoExclusaoPendente = botaoExcluir;
+
+  nomeProdutoExclusao.textContent = `"${produto.descricao}"`;
+  mensagemExclusao.textContent = '';
+  mensagemExclusao.hidden = true;
+
+  modalExclusao.showModal();
+  botaoCancelarExclusao.focus();
+}
+
+function fecharModalExclusao() {
+  if (modalExclusao.open) {
+    modalExclusao.close();
+  }
+
+  produtoPendenteExclusao = null;
+  botaoExclusaoPendente = null;
+  mensagemExclusao.textContent = '';
+  mensagemExclusao.hidden = true;
+}
+
+async function confirmarExclusao() {
+  if (!produtoPendenteExclusao || !botaoExclusaoPendente) {
+    return;
+  }
+
+  const produto = produtoPendenteExclusao;
+  const botaoExcluirTabela = botaoExclusaoPendente;
+
+  botaoConfirmarExclusao.disabled = true;
+  botaoConfirmarExclusao.textContent = 'Excluindo...';
+  botaoCancelarExclusao.disabled = true;
+  botaoExcluirTabela.disabled = true;
+
+  try {
+    const resposta = await fetch(`/api/produtos/${produto.id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (resposta.status === 401) {
+      encerrarSessao();
+      return;
+    }
+
+    if (resposta.status !== 204) {
+      let dados = {};
+
+      try {
+        dados = await resposta.json();
+      } catch (erro) {
+        dados = {};
+      }
+
+      throw new Error(
+        dados.mensagem || 'Nao foi possivel excluir o produto.'
+      );
+    }
+
+    if (produtoEmEdicaoId === produto.id) {
+      fecharFormulario();
+    }
+
+    fecharModalExclusao();
+    await carregarProdutos();
+
+    mensagemListagem.hidden = false;
+    mensagemListagem.className =
+      'mensagem-listagem mensagem-sucesso';
+    mensagemListagem.textContent = 'Produto excluido com sucesso.';
+  } catch (erro) {
+    mensagemExclusao.textContent = erro.message;
+    mensagemExclusao.hidden = false;
+    botaoExcluirTabela.disabled = false;
+  } finally {
+    botaoConfirmarExclusao.disabled = false;
+    botaoConfirmarExclusao.textContent = 'Excluir produto';
+    botaoCancelarExclusao.disabled = false;
+  }
+}
+
 botaoNovoProduto.addEventListener('click', abrirFormularioCadastro);
 botaoCancelar.addEventListener('click', fecharFormulario);
 formularioProduto.addEventListener('submit', salvarProduto);
 botaoSair.addEventListener('click', encerrarSessao);
+botaoCancelarExclusao.addEventListener('click', fecharModalExclusao);
+botaoConfirmarExclusao.addEventListener('click', confirmarExclusao);
+modalExclusao.addEventListener('cancel', (evento) => {
+  if (botaoConfirmarExclusao.disabled) {
+    evento.preventDefault();
+    return;
+  }
+  fecharModalExclusao();
+});
 
 if (!token) {
   encerrarSessao();

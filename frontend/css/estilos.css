@@ -375,3 +375,97 @@ tbody tr:hover {
 .botao-editar:hover {
   background: #bfdbfe;
 }
+
+.grupo-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.botao-excluir {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.botao-excluir:hover {
+  background: #fecaca;
+}
+
+.botao-tabela:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.modal-exclusao {
+  width: min(440px, calc(100% - 32px));
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  color: var(--cor-texto);
+  background: white;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+}
+
+.modal-exclusao::backdrop {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(2px);
+}
+
+.conteudo-modal {
+  padding: 28px;
+}
+
+.conteudo-modal h2 {
+  margin: 16px 0 8px;
+}
+
+.conteudo-modal p {
+  color: var(--cor-texto-secundario);
+  line-height: 1.5;
+}
+
+.conteudo-modal strong {
+  color: var(--cor-texto);
+}
+
+.icone-exclusao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #b91c1c;
+  background: #fee2e2;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.acoes-modal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.acoes-modal button {
+  width: auto;
+}
+
+.botao-perigo {
+  color: white;
+  background: #dc2626;
+}
+
+.botao-perigo:hover {
+  background: #b91c1c;
+}
+
+@media (max-width: 480px) {
+  .acoes-modal {
+    flex-direction: column-reverse;
+  }
+
+  .acoes-modal button {
+    width: 100%;
+  }
+}
