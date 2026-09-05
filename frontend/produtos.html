@@ -22,12 +22,40 @@
   </header>
 
   <main class="conteudo">
-    <section class="cartao">
-      <h1>Produtos</h1>
-      <p class="texto-secundario">
-        Login realizado com sucesso. A listagem será adicionada
-        na próxima etapa.
+    <section class="cartao painel-produtos">
+      <div class="titulo-painel">
+        <div>
+          <h1>Produtos</h1>
+          <p class="texto-secundario">
+            Consulte os produtos cadastrados no sistema.
+          </p>
+        </div>
+      </div>
+
+      <p
+        id="mensagem-listagem"
+        class="mensagem-listagem"
+        aria-live="polite"
+      >
+        Carregando produtos...
       </p>
+
+      <div id="container-tabela" class="tabela-responsiva" hidden>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Data de cadastro</th>
+              <th>Usuário</th>
+              <th>Descrição</th>
+              <th>Quantidade</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+
+          <tbody id="corpo-tabela-produtos"></tbody>
+        </table>
+      </div>
     </section>
   </main>
 
