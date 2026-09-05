@@ -10,14 +10,11 @@ aplicacao.use(express.json());
 aplicacao.use('/api/usuarios', rotasUsuarios);
 aplicacao.use('/api', rotasAutenticacao);
 
-
-function apresentarSistema(requisicao, resposta) {
-  resposta.json({
-    mensagem: 'Minha primeira etapa esta funcionando.'
-  });
+function redirecionarParaLogin(requisicao, resposta) {
+  return resposta.redirect('/login.html');
 }
 
-aplicacao.get('/', apresentarSistema);
+aplicacao.get('/', redirecionarParaLogin);
 aplicacao.use('/api/produtos', rotasProdutos);
 
 const caminhoFrontend = path.join(__dirname, '../../frontend');
