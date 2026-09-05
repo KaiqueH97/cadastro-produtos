@@ -281,3 +281,78 @@ tbody tr:hover {
     padding: 16px;
   }
 }
+
+.botao-acao {
+  width: auto;
+  white-space: nowrap;
+}
+
+.formulario-produto {
+  margin: 24px 0;
+  padding: 24px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.formulario-produto h2 {
+  margin: 0 0 20px;
+  font-size: 20px;
+}
+
+.grade-formulario {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+}
+
+.acoes-formulario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.acoes-formulario button {
+  width: auto;
+}
+
+.botao-cancelar {
+  color: var(--cor-texto);
+  background: #e2e8f0;
+}
+
+.mensagem {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.mensagem-erro {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.mensagem-sucesso {
+  color: #166534;
+  background: #dcfce7;
+}
+
+@media (max-width: 720px) {
+  .titulo-painel {
+    flex-direction: column;
+  }
+
+  .grade-formulario {
+    grid-template-columns: 1fr;
+  }
+
+  .acoes-formulario {
+    flex-direction: column-reverse;
+  }
+
+  .acoes-formulario button,
+  .botao-acao {
+    width: 100%;
+  }
+}

@@ -3,6 +3,14 @@ const usuarioArmazenado = localStorage.getItem('usuario');
 
 const nomeUsuario = document.querySelector('#nome-usuario');
 const botaoSair = document.querySelector('#botao-sair');
+const botaoNovoProduto = document.querySelector('#botao-novo-produto');
+const formularioProduto = document.querySelector('#formulario-produto');
+const campoDescricao = document.querySelector('#descricao');
+const campoQuantidade = document.querySelector('#quantidade');
+const campoValor = document.querySelector('#valor');
+const botaoCancelar = document.querySelector('#botao-cancelar');
+const botaoSalvar = document.querySelector('#botao-salvar');
+const mensagemFormulario = document.querySelector('#mensagem-formulario');
 const mensagemListagem = document.querySelector('#mensagem-listagem');
 const containerTabela = document.querySelector('#container-tabela');
 const corpoTabela = document.querySelector('#corpo-tabela-produtos');
@@ -64,12 +72,36 @@ function criarCelula(valor, nomeClasse = '') {
   return celula;
 }
 
+function mostrarMensagemFormulario(texto, tipo = '') {
+  mensagemFormulario.textContent = texto;
+  mensagemFormulario.className = 'mensagem';
+
+  if (tipo) {
+    mensagemFormulario.classList.add(`mensagem-${tipo}`);
+  }
+
+  mensagemFormulario.hidden = texto.length === 0;
+}
+
+function abrirFormulario() {
+  formularioProduto.hidden = false;
+  mostrarMensagemFormulario('');
+  campoDescricao.focus();
+}
+
+function fecharFormulario() {
+  formularioProduto.reset();
+  formularioProduto.hidden = true;
+  mostrarMensagemFormulario('');
+}
+
 function exibirProdutos(produtos) {
   corpoTabela.replaceChildren();
 
   if (produtos.length === 0) {
     containerTabela.hidden = true;
     mensagemListagem.hidden = false;
+    mensagemListagem.className = 'mensagem-listagem';
     mensagemListagem.textContent = 'Nenhum produto cadastrado.';
     return;
   }
@@ -98,6 +130,7 @@ function exibirProdutos(produtos) {
 
 async function carregarProdutos() {
   mensagemListagem.hidden = false;
+  mensagemListagem.className = 'mensagem-listagem';
   mensagemListagem.textContent = 'Carregando produtos...';
   containerTabela.hidden = true;
 
@@ -128,10 +161,65 @@ async function carregarProdutos() {
     exibirProdutos(dados);
   } catch (erro) {
     mensagemListagem.hidden = false;
+    mensagemListagem.className = 'mensagem-listagem mensagem-erro';
     mensagemListagem.textContent = erro.message;
     containerTabela.hidden = true;
   }
 }
+
+async function cadastrarProduto(evento) {
+  evento.preventDefault();
+
+  mostrarMensagemFormulario('');
+  botaoSalvar.disabled = true;
+  botaoSalvar.textContent = 'Salvando...';
+
+  try {
+    const resposta = await fetch('/api/produtos', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        descricao: campoDescricao.value.trim(),
+        quantidade: Number(campoQuantidade.value),
+        valor: Number(campoValor.value)
+      })
+    });
+
+    if (resposta.status === 401) {
+      encerrarSessao();
+      return;
+    }
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados.mensagem || 'Nao foi possivel cadastrar o produto.'
+      );
+    }
+
+    fecharFormulario();
+    await carregarProdutos();
+
+    mensagemListagem.hidden = false;
+    mensagemListagem.className =
+      'mensagem-listagem mensagem-sucesso';
+    mensagemListagem.textContent = 'Produto cadastrado com sucesso.';
+  } catch (erro) {
+    mostrarMensagemFormulario(erro.message, 'erro');
+  } finally {
+    botaoSalvar.disabled = false;
+    botaoSalvar.textContent = 'Salvar produto';
+  }
+}
+
+botaoNovoProduto.addEventListener('click', abrirFormulario);
+botaoCancelar.addEventListener('click', fecharFormulario);
+formularioProduto.addEventListener('submit', cadastrarProduto);
+botaoSair.addEventListener('click', encerrarSessao);
 
 if (!token) {
   encerrarSessao();
@@ -139,5 +227,3 @@ if (!token) {
   mostrarNomeUsuario();
   carregarProdutos();
 }
-
-botaoSair.addEventListener('click', encerrarSessao);
