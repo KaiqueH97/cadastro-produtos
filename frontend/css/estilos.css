@@ -356,3 +356,22 @@ tbody tr:hover {
     width: 100%;
   }
 }
+
+.celula-acoes {
+  text-align: right;
+}
+
+.botao-tabela {
+  width: auto;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.botao-editar {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.botao-editar:hover {
+  background: #bfdbfe;
+}

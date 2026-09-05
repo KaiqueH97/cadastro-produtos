@@ -5,6 +5,7 @@ const nomeUsuario = document.querySelector('#nome-usuario');
 const botaoSair = document.querySelector('#botao-sair');
 const botaoNovoProduto = document.querySelector('#botao-novo-produto');
 const formularioProduto = document.querySelector('#formulario-produto');
+const tituloFormulario = document.querySelector('#titulo-formulario');
 const campoDescricao = document.querySelector('#descricao');
 const campoQuantidade = document.querySelector('#quantidade');
 const campoValor = document.querySelector('#valor');
@@ -14,6 +15,8 @@ const mensagemFormulario = document.querySelector('#mensagem-formulario');
 const mensagemListagem = document.querySelector('#mensagem-listagem');
 const containerTabela = document.querySelector('#container-tabela');
 const corpoTabela = document.querySelector('#corpo-tabela-produtos');
+
+let produtoEmEdicaoId = null;
 
 function encerrarSessao() {
   localStorage.removeItem('token');
@@ -72,6 +75,25 @@ function criarCelula(valor, nomeClasse = '') {
   return celula;
 }
 
+function criarCelulaAcoes(produto) {
+  const celula = document.createElement('td');
+  const botaoEditar = document.createElement('button');
+
+  celula.classList.add('celula-acoes');
+
+  botaoEditar.type = 'button';
+  botaoEditar.textContent = 'Editar';
+  botaoEditar.classList.add('botao-tabela', 'botao-editar');
+
+  botaoEditar.addEventListener('click', () => {
+    abrirFormularioEdicao(produto);
+  });
+
+  celula.appendChild(botaoEditar);
+
+  return celula;
+}
+
 function mostrarMensagemFormulario(texto, tipo = '') {
   mensagemFormulario.textContent = texto;
   mensagemFormulario.className = 'mensagem';
@@ -83,15 +105,42 @@ function mostrarMensagemFormulario(texto, tipo = '') {
   mensagemFormulario.hidden = texto.length === 0;
 }
 
-function abrirFormulario() {
+function abrirFormularioCadastro() {
+  produtoEmEdicaoId = null;
+  formularioProduto.reset();
+  tituloFormulario.textContent = 'Novo produto';
+  botaoSalvar.textContent = 'Salvar produto';
   formularioProduto.hidden = false;
   mostrarMensagemFormulario('');
   campoDescricao.focus();
 }
 
+function abrirFormularioEdicao(produto) {
+  produtoEmEdicaoId = produto.id;
+
+  tituloFormulario.textContent = `Editar produto #${produto.id}`;
+  campoDescricao.value = produto.descricao;
+  campoQuantidade.value = produto.quantidade;
+  campoValor.value = Number(produto.valor).toFixed(2);
+  botaoSalvar.textContent = 'Salvar alterações';
+
+  formularioProduto.hidden = false;
+  mostrarMensagemFormulario('');
+
+  formularioProduto.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+
+  campoDescricao.focus();
+}
+
 function fecharFormulario() {
+  produtoEmEdicaoId = null;
   formularioProduto.reset();
   formularioProduto.hidden = true;
+  tituloFormulario.textContent = 'Novo produto';
+  botaoSalvar.textContent = 'Salvar produto';
   mostrarMensagemFormulario('');
 }
 
@@ -117,7 +166,8 @@ function exibirProdutos(produtos) {
       criarCelula(produto.usuario),
       criarCelula(produto.descricao),
       criarCelula(produto.quantidade, 'celula-numero'),
-      criarCelula(formatarValor(produto.valor), 'celula-valor')
+      criarCelula(formatarValor(produto.valor), 'celula-valor'),
+      criarCelulaAcoes(produto)
     );
 
     fragmento.appendChild(linha);
@@ -167,16 +217,23 @@ async function carregarProdutos() {
   }
 }
 
-async function cadastrarProduto(evento) {
+async function salvarProduto(evento) {
   evento.preventDefault();
+
+  const estaEditando = produtoEmEdicaoId !== null;
+  const endereco = estaEditando
+    ? `/api/produtos/${produtoEmEdicaoId}`
+    : '/api/produtos';
+
+  const metodo = estaEditando ? 'PUT' : 'POST';
 
   mostrarMensagemFormulario('');
   botaoSalvar.disabled = true;
   botaoSalvar.textContent = 'Salvando...';
 
   try {
-    const resposta = await fetch('/api/produtos', {
-      method: 'POST',
+    const resposta = await fetch(endereco, {
+      method: metodo,
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -197,9 +254,13 @@ async function cadastrarProduto(evento) {
 
     if (!resposta.ok) {
       throw new Error(
-        dados.mensagem || 'Nao foi possivel cadastrar o produto.'
+        dados.mensagem || 'Nao foi possivel salvar o produto.'
       );
     }
+
+    const mensagemSucesso = estaEditando
+      ? 'Produto atualizado com sucesso.'
+      : 'Produto cadastrado com sucesso.';
 
     fecharFormulario();
     await carregarProdutos();
@@ -207,18 +268,20 @@ async function cadastrarProduto(evento) {
     mensagemListagem.hidden = false;
     mensagemListagem.className =
       'mensagem-listagem mensagem-sucesso';
-    mensagemListagem.textContent = 'Produto cadastrado com sucesso.';
+    mensagemListagem.textContent = mensagemSucesso;
   } catch (erro) {
     mostrarMensagemFormulario(erro.message, 'erro');
   } finally {
     botaoSalvar.disabled = false;
-    botaoSalvar.textContent = 'Salvar produto';
+    botaoSalvar.textContent = produtoEmEdicaoId !== null
+      ? 'Salvar alterações'
+      : 'Salvar produto';
   }
 }
 
-botaoNovoProduto.addEventListener('click', abrirFormulario);
+botaoNovoProduto.addEventListener('click', abrirFormularioCadastro);
 botaoCancelar.addEventListener('click', fecharFormulario);
-formularioProduto.addEventListener('submit', cadastrarProduto);
+formularioProduto.addEventListener('submit', salvarProduto);
 botaoSair.addEventListener('click', encerrarSessao);
 
 if (!token) {
